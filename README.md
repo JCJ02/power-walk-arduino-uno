@@ -4,4 +4,4 @@
 # ARDUINO.ino
 - This Arduino code is designed for an RFID-based "Free Charging Station", where students can scan their RFID cards to activate a charging session. If their RFID card is verified, the system allows them to charge their devices for 15 minutes before automatically turning off.
 
-![Schematic Diagram - RFID Based Charging Station in QCU](Schematic Diagram of a RFID based Charging Station.jpg)
+![Schematic Diagram - RFID Based Charging Station in QCU](Schematic_Diagram.jpg)
