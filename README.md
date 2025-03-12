@@ -5,4 +5,7 @@
 ## ARDUINO.ino File
 - This Arduino code is designed for an RFID-based "Free Charging Station", where students can scan their RFID cards to activate a charging session. If their RFID card is verified, the system allows them to charge their devices for 15 minutes before automatically turning off.
 
+## NODEMCU.ino File
+- [NODEMCU.ino File](https://www.postgresql.org/docs/current/](https://github.com/JCJ02/power-walk-nodemcu-esp8266)
+  
 ![Schematic Diagram - RFID Based Charging Station in QCU](Schematic_Diagram.jpg)
