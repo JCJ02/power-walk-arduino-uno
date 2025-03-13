@@ -1,38 +1,38 @@
-
+// ARDUINO.ino
 unsigned long startTime;
-const unsigned long timerDuration = 15 * 60 * 1000;  // 15 minutes in milliseconds
+const unsigned long timerDuration = 15 * 60 * 1000; // 15 MINUTES IN MILLISECONDS
 #include <LiquidCrystal_I2C.h>
 
-unsigned long previousMillis = 0; // Store the last time the display was updated
-const long interval = 1000; // Interval of 1 second (in milliseconds)
-int remainingTime = 900; // Timer starts at 15 minutes (900 seconds)
-bool onoff=false;
+unsigned long previousMillis = 0; // STORE THE LAST TIME THE DISPLAY WAS UPDATED
+const long interval = 1000; // INTERVAL OF 1 SECOND (IN MILLISECONDS)
+int remainingTime = 900; // TIMER STARTS AT 15 MINUTES (900 SECONDS)
+bool onoff = false;
 #include <Wire.h>
 const int RELAY_PIN2 = 4;
-//initialize the liquid crystal library
-//the first parameter is  the I2C address
-//the second parameter is how many rows are on your screen
-//the  third parameter is how many columns are on your screen
-LiquidCrystal_I2C lcd(0x27,  16, 2);
+// INITIALIZE THE LIQUID CRYSTAL LIBRARY
+// THE FIRST PARAMETER IS THE I2C ADDRESS
+// THE SECOND PARAMETER IS HOW MANY ROWS ARE ON YOUR SCREEN
+// THE THIRD PARAMETER IS HOW MANY COLUMNS ARE ON YOUR SCREEN
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 void setup() {
   pinMode(RELAY_PIN2, OUTPUT);
-  // digitalWrite(RELAY_PIN2, HIGH); // Ensure relay is OFF initially
-  Serial.begin(115200);  
+  // digitalWrite(RELAY_PIN2, HIGH); // ENSURE RELAY IS OFF INITIALLY
+  Serial.begin(115200);
   lcd.init();
-  // lcd.begin(16,2);//Defining 16 columns and 2 rows of lcd display
-  lcd.backlight();//To Power ON the back light
+  // lcd.begin(16,2); // DEFINING 16 COLUMNS AND 2 ROWS OF LCD DISPLAY
+  lcd.backlight(); // TO POWER ON THE BACK LIGHT
 
-  lcd.setCursor(0,0); //Defining positon to write from first row,first column .
-  lcd.print("FREE CHARGE"); //You can write 16 Characters per line .
-  delay(1000);//Delay used to give a dynamic effect
-  lcd.setCursor(0,1);  //Defining positon to write from second row,first column .
+  lcd.setCursor(0, 0); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN.
+  lcd.print("FREE CHARGE"); // YOU CAN WRITE 16 CHARACTERS PER LINE.
+  delay(1000); // DELAY USED TO GIVE A DYNAMIC EFFECT
+  lcd.setCursor(0, 1); // DEFINING POSITION TO WRITE FROM SECOND ROW, FIRST COLUMN
   lcd.print("INITIALIZING....");
   delay(1000);
-  lcd.clear();//Clean the screen
+  lcd.clear(); // CLEAR THE SCREEN
 }
 
-String data="";
+String data = "";
 
 String removeSpaces(String input) {
   String output = "";
@@ -44,108 +44,121 @@ String removeSpaces(String input) {
   return output;
 }
 
+void resetSystem() {
+  remainingTime = 900; // RESET TIMER TO 15 MINUTES
+  onoff = false; // RESET THE CHARGING STATE
+  data = ""; // CLEAR THE RFID DATA
+  digitalWrite(RELAY_PIN2, HIGH); // TURN OFF THE RELAY
+  lcd.clear(); // CLEAR THE LCD SCREEN
+  lcd.setCursor(0, 0); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
+  lcd.print("FREE CHARGE"); // YOU CAN WRITE 16 CHARACTERS PER LINE
+  lcd.setCursor(0, 1); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
+  lcd.print("Scan Your ID");
+}
+
 void loop() {
   // pinMode(RELAY_PIN2, OUTPUT);
   if (Serial.available()) {
-    String receivedData = Serial.readString();  // Read data as string
+    String receivedData = Serial.readString(); // READ DATA AS STRING
     Serial.println("Received Data: " + receivedData);
     data = receivedData;
   }
 
   String noSpaces = removeSpaces(data);
-  Serial.print("Scan:");  // Output: HelloWorld!
-  Serial.println(noSpaces);  // Output: HelloWorld!
+  Serial.print("Scan:");
+  Serial.println(noSpaces);
 
-  if(data == ""){
-    lcd.setCursor(0,0); //Defining positon to write from first row,first column .
-    lcd.print("FREE CHARGE"); //You can write 16 Characters per line .
-    delay(1000);//Delay used to give a dynamic effect
-    lcd.setCursor(0,1);  //Defining positon to write from second row,first column .
+  if (data == "") {
+    lcd.setCursor(0, 0); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
+    lcd.print("FREE CHARGE"); // YOU CAN WRITE 16 CHARACTERS PER LINE
+    delay(1000); // DELAY USED TO GIVE A DYNAMIC EFFECT
+    lcd.setCursor(0, 1); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
     lcd.print("Scan Your ID");
     digitalWrite(RELAY_PIN2, HIGH);
     delay(1000);
-    lcd.clear();//Clean the screen
+    lcd.clear(); // CLEAR THE SCREEN
   } else {
 
     if (onoff == false) {
+      String str = noSpaces; // TEST STRING
 
-      String str = noSpaces; // Test string
-  
-      // Check if "Yes" is in the string
+      // CHECK IF "YES" IS IN THE STRING
       if (str.indexOf("Yes") != -1) {
-      lcd.clear();//Clean the screen
-      lcd.setCursor(0,0); //Defining positon to write from first row,first column .
-      lcd.print("STUDENT CHARGING"); //You can write 16 Characters per line .
-      lcd.setCursor(0,1); //Defining positon to write from second row,first column .
-      lcd.print("VERIFIED RDID!");
-      digitalWrite(RELAY_PIN2, LOW);
-      onoff=true;
-      Serial.println(data);
-      delay(1000);//Delay used to give a dynamic effect
-      lcd.clear();//Clean the screen
-    } else {
-      lcd.setCursor(0,0); //Defining positon to write from first row,first column .
-      lcd.print("FREE CHARGE"); //You can write 16 Characters per line .
-      lcd.setCursor(0,1); //Defining positon to write from second row,first column .
-      lcd.print(data);
-      delay(1000); //Delay used to give a dynamic effect
-      lcd.clear();//Clean the screen
-      digitalWrite(RELAY_PIN2, HIGH);  
-      delay(2000); //Delay used to give a dynamic effect
-      data = "";
-      onoff=false;
-      Serial.print("INVALID RFID!");
-    }
-
-    if(noSpaces!="Yes" ){
-
-    } else {
-
-    }
-  }
-}
-
-  if (onoff == true) {
-    unsigned long currentMillis = millis(); // Get the current time
-    if (currentMillis - previousMillis >= interval) {
-      // Save the last time the display was updated
-      previousMillis = currentMillis;
-
-      if (remainingTime > 0) {
-        remainingTime--;
-      }
-
-      // Calculate minutes and seconds
-      int minutes = remainingTime / 60;
-      int seconds = remainingTime % 60;
-
-      // Ensure first row is consistent
-      lcd.setCursor(0, 0);
-      // lcd.print("FREE CHARGE  "); // Ensure spaces to remove leftover characters
-      lcd.print("STUDENT CHARGING...");
-      // Update only the timer portion of the LCD
-      lcd.setCursor(0, 1);
-      lcd.print("TIME LEFT: ");
-      if (minutes < 10) lcd.print("0"); // Add leading zero if needed
-      lcd.print(minutes);
-      lcd.print(":");
-      if (seconds < 10) lcd.print("0"); // Add leading zero if needed
-      lcd.print(seconds);
-      lcd.print("  "); // Extra spaces to clear old characters
-      Serial.println("timer");
-      if (remainingTime == 0) {
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print("FREE CHARGE");
-        lcd.setCursor(0, 1);
-        lcd.print("Scan Your ID");
-        delay(1000); // Give a slight delay for effect
-        onoff = false;
-        data = "";
+        lcd.clear(); // CLEAR THE SCREEN
+        lcd.setCursor(0, 0); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
+        lcd.print("STUDENT CHARGING"); // YOU CAN WRITE 16 CHARACTERS PER LINE
+        lcd.setCursor(0, 1); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
+        lcd.print("VERIFIED RDID!");
+        digitalWrite(RELAY_PIN2, LOW);
+        onoff = true;
+        Serial.println(data);
+        delay(1000); // DELAY USED TO GIVE A DYNAMIC EFFECT
+        lcd.clear(); // CLEAR THE SCREEN
+      } else {
+        lcd.setCursor(0, 0); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
+        lcd.print("FREE CHARGE"); // YOU CAN WRITE 16 CHARACTERS PER LINE
+        lcd.setCursor(0, 1); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
+        lcd.print(data);
+        delay(1000); // DELAY USED TO GIVE A DYNAMIC EFFECT
+        lcd.clear(); // CLEAR THE SCREEN
         digitalWrite(RELAY_PIN2, HIGH);
+        delay(1000); // DELAY USED TO GIVE A DYNAMIC EFFECT
+        data = "";
+        onoff = false;
+        Serial.print("INVALID RFID!");
+      }
+
+      if (noSpaces != "Yes") {
+
+      } else {
+
+      }
+    }
+
+    if (onoff == true) {
+      unsigned long currentMillis = millis(); // GET THE CURRENT TIME
+      if (currentMillis - previousMillis >= interval) {
+        // SAVE THE LAST TIME THE DISPLAY WAS UPDATED
+        previousMillis = currentMillis;
+
+        if (remainingTime > 0) {
+          remainingTime--;
+        }
+
+        // CALCULATE MINUTES AND SECONDS
+        int minutes = remainingTime / 60;
+        int seconds = remainingTime % 60;
+
+        // ENSURE FIRST ROW IS CONSISTENT
+        lcd.setCursor(0, 0);
+        // lcd.print("FREE CHARGE  "); // ENSURE SPACES TO REMOVE LEFTOVER CHARACTERS
+        lcd.print("STUDENT CHARGING...");
+        // UPDATE ONLY THE TIMER PORTION OF THE LCD
+        lcd.setCursor(0, 1);
+        lcd.print("TIME LEFT: ");
+        if (minutes < 10) lcd.print("0"); // ADD LEADING ZERO IF NEEDED
+        lcd.print(minutes);
+        lcd.print(":");
+        if (seconds < 10) lcd.print("0"); // ADD LEADING ZERO IF NEEDED
+        lcd.print(seconds);
+        lcd.print("  "); // EXTRA SPACES TO CLEAR OLD CHARACTERS
+        Serial.println("Timer");
+        if (remainingTime == 0) {
+          // lcd.setCursor(0, 0); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
+          // lcd.print("FREE CHARGE"); // YOU CAN WRITE 16 CHARACTERS PER LINE
+          // delay(1000); // DELAY USED TO GIVE A DYNAMIC EFFECT
+          // lcd.setCursor(0, 1); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
+          // lcd.print("Scan Your ID");
+          // digitalWrite(RELAY_PIN2, HIGH);
+          // delay(1000);
+          // onoff = false;
+          // data = "";
+          // digitalWrite(RELAY_PIN2, HIGH);
+          // lcd.clear(); // CLEAR THE SCREEN
+          resetSystem();
+        }
       }
     }
   }
-  
 }
 
