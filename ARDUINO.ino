@@ -22,7 +22,6 @@ void setup() {
   lcd.init();
   // lcd.begin(16,2); // DEFINING 16 COLUMNS AND 2 ROWS OF LCD DISPLAY
   lcd.backlight(); // TO POWER ON THE BACK LIGHT
-
   lcd.setCursor(0, 0); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN.
   lcd.print("FREE CHARGE"); // YOU CAN WRITE 16 CHARACTERS PER LINE.
   delay(1000); // DELAY USED TO GIVE A DYNAMIC EFFECT
@@ -45,15 +44,18 @@ String removeSpaces(String input) {
 }
 
 void resetSystem() {
+  lcd.clear(); // CLEAR THE SCREEN
   remainingTime = 900; // RESET TIMER TO 15 MINUTES
   onoff = false; // RESET THE CHARGING STATE
   data = ""; // CLEAR THE RFID DATA
-  digitalWrite(RELAY_PIN2, HIGH); // TURN OFF THE RELAY
-  lcd.clear(); // CLEAR THE LCD SCREEN
   lcd.setCursor(0, 0); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
   lcd.print("FREE CHARGE"); // YOU CAN WRITE 16 CHARACTERS PER LINE
+  delay(1000); // DELAY USED TO GIVE A DYNAMIC EFFECT
   lcd.setCursor(0, 1); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
   lcd.print("Scan Your ID");
+  digitalWrite(RELAY_PIN2, HIGH);
+  delay(1000);
+  lcd.clear(); // CLEAR THE SCREEN
 }
 
 void loop() {
@@ -65,7 +67,7 @@ void loop() {
   }
 
   String noSpaces = removeSpaces(data);
-  Serial.print("Scan:");
+  Serial.print("Scan: ");
   Serial.println(noSpaces);
 
   if (data == "") {
@@ -95,6 +97,7 @@ void loop() {
         delay(1000); // DELAY USED TO GIVE A DYNAMIC EFFECT
         lcd.clear(); // CLEAR THE SCREEN
       } else {
+        // NOT REGISTERED or FULLY CONSUMED
         lcd.setCursor(0, 0); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
         lcd.print("FREE CHARGE"); // YOU CAN WRITE 16 CHARACTERS PER LINE
         lcd.setCursor(0, 1); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
@@ -105,7 +108,6 @@ void loop() {
         delay(1000); // DELAY USED TO GIVE A DYNAMIC EFFECT
         data = "";
         onoff = false;
-        Serial.print("INVALID RFID!");
       }
 
       if (noSpaces != "Yes") {
@@ -144,21 +146,9 @@ void loop() {
         lcd.print("  "); // EXTRA SPACES TO CLEAR OLD CHARACTERS
         Serial.println("Timer");
         if (remainingTime == 0) {
-          // lcd.setCursor(0, 0); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
-          // lcd.print("FREE CHARGE"); // YOU CAN WRITE 16 CHARACTERS PER LINE
-          // delay(1000); // DELAY USED TO GIVE A DYNAMIC EFFECT
-          // lcd.setCursor(0, 1); // DEFINING POSITION TO WRITE FROM FIRST ROW, FIRST COLUMN
-          // lcd.print("Scan Your ID");
-          // digitalWrite(RELAY_PIN2, HIGH);
-          // delay(1000);
-          // onoff = false;
-          // data = "";
-          // digitalWrite(RELAY_PIN2, HIGH);
-          // lcd.clear(); // CLEAR THE SCREEN
           resetSystem();
         }
       }
     }
   }
 }
-
